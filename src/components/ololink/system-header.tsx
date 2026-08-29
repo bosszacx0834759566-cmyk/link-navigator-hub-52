@@ -5,12 +5,12 @@ import { SCENARIO_ORDER, SCENARIOS, type ScenarioId } from '@/lib/ololink';
 import { cn } from '@/lib/utils';
 import logoUrl from '@/assets/logo.png';
 
-/** Thai-first labels for the scenario simulation tabs. */
-const SCENARIO_LABELS: Record<ScenarioId, { th: string; en: string }> = {
-  clear: { th: 'ท้องฟ้าแจ่มใส', en: 'Clear' },
-  cloud: { th: 'เมฆหนา', en: 'Cloud' },
-  rain: { th: 'ฝน', en: 'Rain' },
-  storm: { th: 'พายุ', en: 'Storm' },
+/** English labels for the scenario simulation tabs. */
+const SCENARIO_LABELS: Record<ScenarioId, string> = {
+  clear: 'Clear',
+  cloud: 'Cloud',
+  rain: 'Rain',
+  storm: 'Storm',
 };
 
 function ScenarioTab({
@@ -24,7 +24,6 @@ function ScenarioTab({
   disabled: boolean;
   onSelect: (id: ScenarioId) => void;
 }) {
-  const label = SCENARIO_LABELS[id];
   return (
     <button
       type="button"
@@ -32,17 +31,14 @@ function ScenarioTab({
       disabled={disabled}
       aria-pressed={active}
       className={cn(
-        'group relative flex h-9 shrink-0 flex-col items-center justify-center rounded-[8px] px-3 outline-none transition-all duration-150',
+        'group relative flex h-8 shrink-0 items-center justify-center rounded-[8px] px-3.5 text-[11px] font-medium outline-none transition-all duration-150',
         'focus-visible:ring-1 focus-visible:ring-sky-400/60 disabled:opacity-50',
         active
           ? 'bg-sky-500/[0.14] text-sky-200'
           : 'text-muted-foreground/70 hover:bg-white/[0.05] hover:text-foreground active:scale-[0.96]'
       )}
     >
-      <span className="text-[11px] font-medium leading-tight">{label.th}</span>
-      <span className="font-mono text-[7.5px] uppercase leading-tight tracking-[0.22em] opacity-60">
-        {label.en}
-      </span>
+      {SCENARIO_LABELS[id]}
       {/* active indicator */}
       <span
         className={cn(
