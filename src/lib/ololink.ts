@@ -307,6 +307,7 @@ export const SEGMENTS: Segment[] = [
   seg('s-satth2-hapsth', 'sat-th-2', 'haps-th', 'FSO'),
   seg('s-hapsth-drnth', 'haps-th', 'drn-th', 'MICROWAVE'),
   seg('s-drnth-gsth', 'drn-th', 'gs-th', 'RF'),
+  seg('s-drnth-gsth-fso', 'drn-th', 'gs-th', 'FSO'),
   seg('s-hapsth-gsth', 'haps-th', 'gs-th', 'RF'),
   seg('s-gsth-custh', 'gs-th', 'cus-th', 'FIBER'),
 
@@ -316,9 +317,14 @@ export const SEGMENTS: Segment[] = [
   seg('s-satus2-hapsus', 'sat-us-2', 'haps-us', 'FSO'),
   seg('s-hapsus-drnus', 'haps-us', 'drn-us', 'MICROWAVE'),
   seg('s-drnus-gsus', 'drn-us', 'gs-us', 'RF'),
+  seg('s-drnus-gsus-fso', 'drn-us', 'gs-us', 'FSO'),
   seg('s-hapsus-gsus', 'haps-us', 'gs-us', 'RF'),
   seg('s-gsus-cusus', 'gs-us', 'cus-us', 'FIBER'),
 ];
+
+const SEGMENT_BY_ID: Record<string, Segment> = Object.fromEntries(
+  SEGMENTS.map((s) => [s.id, s])
+);
 
 
 export interface ScenarioProfile {
@@ -338,6 +344,8 @@ export interface ScenarioProfile {
   };
   /** ordered asset ids of the AI-selected primary route */
   route: string[];
+  /** ordered segment ids of the primary route — pins the exact transport per hop */
+  routeSegmentIds: string[];
   blockedTech: Tech[];
   weather: WeatherCell[];
   ai: {
@@ -388,6 +396,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'DIRECT OPTICAL',
     telemetry: { bandwidth: 10.0, latency: 14, packetLoss: 0.02, signal: 98, availability: 99.98 },
     route: ['sat-th-1', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth1-gsth', 's-gsth-custh'],
     blockedTech: [],
     weather: [],
     ai: {
@@ -408,6 +417,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'ADAPTIVE RELAY',
     telemetry: { bandwidth: 6.4, latency: 38, packetLoss: 0.9, signal: 71, availability: 97.2 },
     route: ['sat-th-1', 'haps-th', 'drn-th', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth1-hapsth', 's-hapsth-drnth', 's-drnth-gsth-fso', 's-gsth-custh'],
     blockedTech: ['OPTICAL'],
     weather: CLOUD_CELLS,
     ai: {
@@ -428,6 +438,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'RF BACKBONE',
     telemetry: { bandwidth: 3.1, latency: 62, packetLoss: 2.4, signal: 54, availability: 92.4 },
     route: ['sat-us-1', 'haps-us', 'drn-us', 'gs-us', 'cus-us'],
+    routeSegmentIds: ['s-satus1-hapsus', 's-hapsus-drnus', 's-drnus-gsus', 's-gsus-cusus'],
     blockedTech: ['OPTICAL', 'FSO'],
     weather: RAIN_CELLS,
     ai: {
@@ -451,6 +462,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'ADAPTIVE ROUTING',
     telemetry: { bandwidth: 1.62, latency: 85, packetLoss: 4.8, signal: 38, availability: 86.1 },
     route: ['sat-th-2', 'haps-th', 'drn-th', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth2-hapsth', 's-hapsth-drnth', 's-drnth-gsth', 's-gsth-custh'],
     blockedTech: ['OPTICAL', 'FSO'],
     weather: STORM_CELLS,
     ai: {
@@ -509,13 +521,10 @@ export function linkStates(
   profile: ScenarioProfile,
   rerouting?: ReadonlySet<string>
 ): LinkState[] {
-  const routeSet = new Set<string>();
-  for (let i = 0; i < profile.route.length - 1; i++) {
-    routeSet.add(`${profile.route[i]}>${profile.route[i + 1]}`);
-  }
+  const routeSet = new Set<string>(profile.routeSegmentIds);
 
   return SEGMENTS.map((segment) => {
-    const onRoute = routeSet.has(`${segment.from}>${segment.to}`);
+    const onRoute = routeSet.has(segment.id);
     const { exposure, cells } = segmentExposure(segment, profile.weather);
     const sensitivity = TECH_SENSITIVITY[segment.tech];
     const impact = Math.round(exposure * sensitivity);
@@ -641,8 +650,15 @@ export function assetContext(
 }
 
 
-/** Ordered segments (in route direction) for a given asset-id chain. */
-export function routeSegments(route: string[]): Segment[] {
+/** Ordered segments (in route direction) for a given asset-id chain.
+ *  When `segmentIds` is supplied (ScenarioProfile.routeSegmentIds) it pins the
+ *  exact transport per hop; otherwise falls back to the first matching pair. */
+export function routeSegments(route: string[], segmentIds?: string[]): Segment[] {
+  if (segmentIds) {
+    return segmentIds
+      .map((id) => SEGMENT_BY_ID[id])
+      .filter((s): s is Segment => Boolean(s));
+  }
   const out: Segment[] = [];
   for (let i = 0; i < route.length - 1; i++) {
     const from = route[i]!;
