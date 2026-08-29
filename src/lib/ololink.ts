@@ -396,6 +396,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'DIRECT OPTICAL',
     telemetry: { bandwidth: 10.0, latency: 14, packetLoss: 0.02, signal: 98, availability: 99.98 },
     route: ['sat-th-1', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth1-gsth', 's-gsth-custh'],
     blockedTech: [],
     weather: [],
     ai: {
@@ -416,6 +417,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'ADAPTIVE RELAY',
     telemetry: { bandwidth: 6.4, latency: 38, packetLoss: 0.9, signal: 71, availability: 97.2 },
     route: ['sat-th-1', 'haps-th', 'drn-th', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth1-hapsth', 's-hapsth-drnth', 's-drnth-gsth-fso', 's-gsth-custh'],
     blockedTech: ['OPTICAL'],
     weather: CLOUD_CELLS,
     ai: {
@@ -436,6 +438,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'RF BACKBONE',
     telemetry: { bandwidth: 3.1, latency: 62, packetLoss: 2.4, signal: 54, availability: 92.4 },
     route: ['sat-us-1', 'haps-us', 'drn-us', 'gs-us', 'cus-us'],
+    routeSegmentIds: ['s-satus1-hapsus', 's-hapsus-drnus', 's-drnus-gsus', 's-gsus-cusus'],
     blockedTech: ['OPTICAL', 'FSO'],
     weather: RAIN_CELLS,
     ai: {
@@ -459,6 +462,7 @@ export const SCENARIOS: Record<ScenarioId, ScenarioProfile> = {
     systemMode: 'ADAPTIVE ROUTING',
     telemetry: { bandwidth: 1.62, latency: 85, packetLoss: 4.8, signal: 38, availability: 86.1 },
     route: ['sat-th-2', 'haps-th', 'drn-th', 'gs-th', 'cus-th'],
+    routeSegmentIds: ['s-satth2-hapsth', 's-hapsth-drnth', 's-drnth-gsth', 's-gsth-custh'],
     blockedTech: ['OPTICAL', 'FSO'],
     weather: STORM_CELLS,
     ai: {
