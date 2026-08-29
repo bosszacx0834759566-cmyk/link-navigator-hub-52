@@ -307,6 +307,7 @@ export const SEGMENTS: Segment[] = [
   seg('s-satth2-hapsth', 'sat-th-2', 'haps-th', 'FSO'),
   seg('s-hapsth-drnth', 'haps-th', 'drn-th', 'MICROWAVE'),
   seg('s-drnth-gsth', 'drn-th', 'gs-th', 'RF'),
+  seg('s-drnth-gsth-fso', 'drn-th', 'gs-th', 'FSO'),
   seg('s-hapsth-gsth', 'haps-th', 'gs-th', 'RF'),
   seg('s-gsth-custh', 'gs-th', 'cus-th', 'FIBER'),
 
@@ -316,9 +317,14 @@ export const SEGMENTS: Segment[] = [
   seg('s-satus2-hapsus', 'sat-us-2', 'haps-us', 'FSO'),
   seg('s-hapsus-drnus', 'haps-us', 'drn-us', 'MICROWAVE'),
   seg('s-drnus-gsus', 'drn-us', 'gs-us', 'RF'),
+  seg('s-drnus-gsus-fso', 'drn-us', 'gs-us', 'FSO'),
   seg('s-hapsus-gsus', 'haps-us', 'gs-us', 'RF'),
   seg('s-gsus-cusus', 'gs-us', 'cus-us', 'FIBER'),
 ];
+
+const SEGMENT_BY_ID: Record<string, Segment> = Object.fromEntries(
+  SEGMENTS.map((s) => [s.id, s])
+);
 
 
 export interface ScenarioProfile {
