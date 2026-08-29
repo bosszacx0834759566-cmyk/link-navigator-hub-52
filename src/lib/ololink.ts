@@ -344,6 +344,8 @@ export interface ScenarioProfile {
   };
   /** ordered asset ids of the AI-selected primary route */
   route: string[];
+  /** ordered segment ids of the primary route — pins the exact transport per hop */
+  routeSegmentIds: string[];
   blockedTech: Tech[];
   weather: WeatherCell[];
   ai: {
