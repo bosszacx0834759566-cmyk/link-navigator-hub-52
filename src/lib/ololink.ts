@@ -521,13 +521,10 @@ export function linkStates(
   profile: ScenarioProfile,
   rerouting?: ReadonlySet<string>
 ): LinkState[] {
-  const routeSet = new Set<string>();
-  for (let i = 0; i < profile.route.length - 1; i++) {
-    routeSet.add(`${profile.route[i]}>${profile.route[i + 1]}`);
-  }
+  const routeSet = new Set<string>(profile.routeSegmentIds);
 
   return SEGMENTS.map((segment) => {
-    const onRoute = routeSet.has(`${segment.from}>${segment.to}`);
+    const onRoute = routeSet.has(segment.id);
     const { exposure, cells } = segmentExposure(segment, profile.weather);
     const sensitivity = TECH_SENSITIVITY[segment.tech];
     const impact = Math.round(exposure * sensitivity);
@@ -653,8 +650,15 @@ export function assetContext(
 }
 
 
-/** Ordered segments (in route direction) for a given asset-id chain. */
-export function routeSegments(route: string[]): Segment[] {
+/** Ordered segments (in route direction) for a given asset-id chain.
+ *  When `segmentIds` is supplied (ScenarioProfile.routeSegmentIds) it pins the
+ *  exact transport per hop; otherwise falls back to the first matching pair. */
+export function routeSegments(route: string[], segmentIds?: string[]): Segment[] {
+  if (segmentIds) {
+    return segmentIds
+      .map((id) => SEGMENT_BY_ID[id])
+      .filter((s): s is Segment => Boolean(s));
+  }
   const out: Segment[] = [];
   for (let i = 0; i < route.length - 1; i++) {
     const from = route[i]!;
