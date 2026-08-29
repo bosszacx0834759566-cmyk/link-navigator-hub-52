@@ -203,8 +203,8 @@ export function useOloLink(): OloLinkState {
       if (id === scenarioId) return;
       setAiProcessing(true);
       push('INFO', `Weather state change → ${SCENARIOS[id].name}`);
-      const outgoing = routeSegments(SCENARIOS[scenarioId].route);
-      const incoming = routeSegments(SCENARIOS[id].route);
+      const outgoing = routeSegments(SCENARIOS[scenarioId].route, SCENARIOS[scenarioId].routeSegmentIds);
+      const incoming = routeSegments(SCENARIOS[id].route, SCENARIOS[id].routeSegmentIds);
       setReroutingIds(new Set([...outgoing, ...incoming].map((s) => s.id)));
       setTimeout(() => {
         setPreviousRoute(outgoing);
@@ -222,7 +222,7 @@ export function useOloLink(): OloLinkState {
   );
 
   const links = useMemo(() => linkStates(profile, reroutingIds), [profile, reroutingIds]);
-  const route = useMemo(() => routeSegments(profile.route), [profile]);
+  const route = useMemo(() => routeSegments(profile.route, profile.routeSegmentIds), [profile]);
 
   // clear the ghost of the replaced route once it has finished fading
   useEffect(() => {
